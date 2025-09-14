@@ -16,17 +16,17 @@ The app will use **single-user input** as the main data source.
 ##Features
 Users can:  
 1. **Create and track daily workout routines**.  
-2. **Lo*Search workouts by muscle group or difficulty level*. g meals and track calorie intake**.  
-3. **Set personalized fitness goals** (e.g., weight loss, muscle gain).  
+2. **Log meals and track calorie intake**.  
+3. **Set personalized fitness goals (e.g., weight loss, muscle gain)**.  
 4. **View progress charts and statistics over time**.  
 5. **Search workouts by muscle group or difficulty level**.
 6. **Save favorite workouts and meal plans for quick access**.
 7. **Receive daily motivational quotes or reminders**.
 8. **Earn achievement badges for reaching milestones**.
- 9.⁠ ⁠**Customize app settings with light/dark mode*.  
-10.⁠ ⁠**Delete all stored data from app settings**.  
-11.⁠ ⁠**Share progress updates or workout streaks with friends**.  
-12.⁠ ⁠**Follow an in-app tutorial when using the app for the first time**.  
+9. **Customize app settings with light/dark mode**.  
+10. **Delete all stored data from app settings**.  
+11. **Share progress updates or workout streaks with friends**.  
+12. **Follow an in-app tutorial when using the app for the first time**.  
 
 
 
