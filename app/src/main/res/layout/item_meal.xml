@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:layout_margin="8dp"
+    android:elevation="4dp">
+
+    <!-- Meal Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Meal Name -->
+        <TextView
+            android:id="@+id/tvMealName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Meal Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+        <!-- Calories -->
+        <TextView
+            android:id="@+id/tvMealCalories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Calories: 0"
+            android:textSize="16sp"
+            android:textColor="#666666" />
+
+        <!-- Macros -->
+        <TextView
+            android:id="@+id/tvMealMacros"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Macros"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+
+        <!-- Meal Type -->
+        <TextView
+            android:id="@+id/tvMealType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Type"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+
+    </LinearLayout>
+
+    <!-- Delete Button -->
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:src="@android:drawable/ic_delete"
+        android:contentDescription="Delete meal"
+        android:tint="#FF4444" />
+
+</LinearLayout>

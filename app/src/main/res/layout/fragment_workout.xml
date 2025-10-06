@@ -6,29 +6,9 @@
     android:padding="16dp"
     android:background="#F5F5F5">
 
-    <!-- Header -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🏋️ Fitness Daily"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:padding="16dp"
-        android:background="#2196F3"
-        android:textColor="@android:color/white" />
 
-    <!-- Subtitle -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Workout Tracker by Suraj"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:padding="12dp"
-        android:background="#E3F2FD"
-        android:textColor="#1976D2"
-        android:layout_marginBottom="16dp" />
+
+
 
     <!-- Add Workout Button -->
     <Button

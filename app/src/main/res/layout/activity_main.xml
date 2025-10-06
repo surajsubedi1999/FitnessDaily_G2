@@ -1,14 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <fragment
-        android:id="@+id/workoutFragment"
-        android:name="subedi.suraj.fitnessdaily.WorkoutFragment"
+    <!-- Header -->
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:text="🏋️ Fitness Daily"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="20dp"
+        android:background="#2196F3"
+        android:textColor="@android:color/white" />
 
-</FrameLayout>
+    <!-- Subtitle -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Home Screen - All Features"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:background="#E3F2FD"
+        android:textColor="#1976D2" />
+
+    <!-- Feature Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#F5F5F5">
+
+        <!-- Workout Button -->
+        <Button
+            android:id="@+id/btnWorkouts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Workout Tracker"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:padding="20dp"
+            android:background="#4CAF50"
+            android:textColor="@android:color/white" />
+
+        <!-- Nutrition Button -->
+        <Button
+            android:id="@+id/btnNutrition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nutrition Tracker"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            android:padding="20dp"
+            android:background="#FF9800"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Fragment Container - REMOVE THE STATIC FRAGMENT -->
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

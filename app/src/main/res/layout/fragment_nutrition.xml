@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" Nutrition Tracker by Krishna"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#4CAF50"
+        android:textColor="@android:color/white" />
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/btnBackToWorkout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⬅ Back to Workouts"
+        android:textSize="16sp"
+        android:layout_marginBottom="12dp"
+        android:padding="12dp"
+        android:background="#2196F3"
+        android:textColor="@android:color/white" />
+
+    <!-- Add Meal Button -->
+    <Button
+        android:id="@+id/btnAddMeal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="➕ Add New Meal"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp"
+        android:padding="16dp"
+        android:background="#FF9800"
+        android:textColor="@android:color/white" />
+
+    <!-- Meal List - MAKE SURE THIS IS VISIBLE AND PROPERLY SIZED -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mealRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
