@@ -188,6 +188,7 @@ class GoalsActivity : AppCompatActivity() {
                 )
                 text = weekData.label
                 textSize = 14f
+                setTextColor(Color.BLACK)
             }
 
             val progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
@@ -235,7 +236,6 @@ class GoalsActivity : AppCompatActivity() {
         val workouts = DataRepository.getLast30DaysWorkouts()
 
         if (workouts.isEmpty()) {
-            // Return sample data if no workouts
             return listOf(
                 WeekData("Week 1", 0),
                 WeekData("Week 2", 0),
@@ -247,7 +247,6 @@ class GoalsActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val weeklyWorkouts = mutableMapOf<String, Int>()
 
-        // Group workouts by week
         workouts.forEach { workout ->
             calendar.time = workout.date
             val weekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
@@ -255,7 +254,6 @@ class GoalsActivity : AppCompatActivity() {
             weeklyWorkouts[weekKey] = weeklyWorkouts.getOrDefault(weekKey, 0) + 1
         }
 
-        // Get last 4 weeks
         val currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)
         val weeklyProgress = mutableListOf<WeekData>()
 
@@ -263,7 +261,6 @@ class GoalsActivity : AppCompatActivity() {
             val weekNum = currentWeek - i
             val weekKey = "Week $weekNum"
             val workoutsThisWeek = weeklyWorkouts[weekKey] ?: 0
-            // Calculate progress based on 5 workouts per week target
             val progress = (workoutsThisWeek * 100) / 5
             weeklyProgress.add(WeekData("W${i+1}", progress.coerceAtMost(100)))
         }

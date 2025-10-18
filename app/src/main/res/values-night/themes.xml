@@ -1,7 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.FitnessDaily" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Theme.FitnessDaily" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <!-- Dark background -->
+        <item name="android:windowBackground">@color/dark_background</item>
+        <item name="android:colorBackground">@color/dark_background</item>
+
+        <!-- Action bar background -->
+        <item name="colorPrimary">@color/dark_surface</item>
+        <item name="colorPrimaryDark">@color/black</item>
+
+        <!-- THIS FIXES THE TITLE: Force white title text -->
+        <item name="actionBarStyle">@style/DarkActionBar</item>
+    </style>
+
+    <style name="DarkActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/DarkActionBarTitle</item>
+        <item name="background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="DarkActionBarTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

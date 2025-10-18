@@ -1,86 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5"
-    tools:context=".MainActivity">
-
-    <!-- Header -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=" Fitness Daily"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:padding="20dp"
-        android:background="#2196F3"
-        android:textColor="@android:color/white" />
-
-    <!-- Feature Buttons -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <!-- Workout Feature -->
-        <Button
-            android:id="@+id/btnWorkouts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=" Workout Tracker"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"
-            android:padding="20dp"
-            android:background="#4CAF50"
-            android:textColor="@android:color/white" />
-
-        <!-- Nutrition Feature -->
-        <Button
-            android:id="@+id/btnNutrition"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=" Nutrition Tracker"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"
-            android:padding="20dp"
-            android:background="#FF9800"
-            android:textColor="@android:color/white" />
-
-        <!-- Goals Feature - NEW BUTTON -->
-        <Button
-            android:id="@+id/btnGoals"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=" Goals Tracker"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"
-            android:padding="20dp"
-            android:background="#9C27B0"
-            android:textColor="@android:color/white" />
-
-    </LinearLayout>
+    android:background="?android:attr/colorBackground">
 
     <!-- Fragment Container -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1" />
 
-        <!-- Default fragment (WorkoutFragment) -->
-        <fragment
-            android:id="@+id/workoutFragment"
-            android:name="subedi.suraj.fitnessdaily.WorkoutFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?android:attr/colorBackground"
+        android:padding="8dp">
 
-    </FrameLayout>
+        <Button
+            android:id="@+id/btnWorkouts"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Workouts"
+            android:textSize="14sp"
+            android:background="?android:attr/colorBackground"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginEnd="4dp" />
 
+        <Button
+            android:id="@+id/btnNutrition"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Nutrition"
+            android:textSize="14sp"
+            android:background="?android:attr/colorBackground"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btnGoals"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Goals"
+            android:textSize="14sp"
+            android:background="?android:attr/colorBackground"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Settings"
+            android:textSize="14sp"
+            android:background="?android:attr/colorBackground"
+            android:textColor="?android:attr/textColorPrimary"
+            android:layout_marginStart="4dp" />
+
+    </LinearLayout>
 </LinearLayout>

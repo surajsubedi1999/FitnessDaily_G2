@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:hint="e.g., Lose Weight, Run 5K"
         android:padding="12dp"
+        android:textColor="@color/black"
         android:background="@android:drawable/editbox_background"
         android:layout_marginBottom="16dp" />
 
@@ -36,6 +37,7 @@
         android:layout_height="wrap_content"
         android:hint="Describe your goal..."
         android:padding="12dp"
+        android:textColor="@color/black"
         android:background="@android:drawable/editbox_background"
         android:layout_marginBottom="16dp" />
 
@@ -54,6 +56,7 @@
         android:hint="e.g., 75.0"
         android:inputType="numberDecimal"
         android:padding="12dp"
+        android:textColor="@color/black"
         android:background="@android:drawable/editbox_background"
         android:layout_marginBottom="16dp" />
 
@@ -72,6 +75,7 @@
         android:hint="e.g., 80.0"
         android:inputType="numberDecimal"
         android:padding="12dp"
+        android:textColor="@color/black"
         android:background="@android:drawable/editbox_background"
         android:layout_marginBottom="16dp" />
 
@@ -89,6 +93,7 @@
         android:layout_height="wrap_content"
         android:hint="e.g., kg, km, sessions"
         android:padding="12dp"
+        android:textColor="@color/black"
         android:background="@android:drawable/editbox_background" />
 
 </LinearLayout>

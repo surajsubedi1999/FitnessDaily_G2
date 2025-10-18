@@ -1,5 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Original colors -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Bottom Navigation Colors -->
+    <color name="bottom_nav_selected">#FF1877F2</color>
+    <color name="bottom_nav_unselected">#FF606770</color>
+    <color name="bottom_nav_background">#FFFFFFFF</color>
+
+    <!-- Button Colors -->
+    <color name="button_background">#FF6200EE</color> <!-- Purple background -->
+    <color name="button_text">#FFFFFFFF</color> <!-- White text -->
+    <color name="button_border">#FF6200EE</color> <!-- Purple border -->
+
+    <!-- Dark Mode Colors -->
+    <color name="dark_background">#FF121212</color>
+    <color name="dark_surface">#FF1E1E1E</color>
+    <color name="dark_surface_variant">#FF2D2D2D</color>
+    <color name="dark_onBackground">#FFFFFFFF</color>
+    <color name="dark_textPrimary">#FFFFFFFF</color>
+    <color name="dark_textSecondary">#FFB3B3B3</color>
+    <color name="dark_textTertiary">#FF808080</color>
+
+    <!-- Dark mode bottom nav -->
+    <color name="dark_bottom_nav_background">#FF1E1E1E</color>
+
+    <!-- Dark mode button colors -->
+    <color name="dark_button_background">#FFBB86FC</color> <!-- Lighter purple -->
+    <color name="dark_button_text">#FF000000</color> <!-- Black text for contrast -->
+    <color name="dark_button_border">#FFBB86FC</color>
 </resources>
