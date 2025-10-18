@@ -1,6 +1,7 @@
 package subedi.suraj.fitnessdaily
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,37 +17,64 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import subedi.suraj.fitnessdaily.model.FitnessGoal
 import subedi.suraj.fitnessdaily.model.GoalType
+import subedi.suraj.fitnessdaily.repository.DataRepository
+import java.util.Calendar
 
 class GoalsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnAddGoal: Button
     private lateinit var btnBack: Button
+    private lateinit var btnTestData: Button
     private lateinit var progressCircle: ProgressBar
     private lateinit var tvGoalsProgress: TextView
+    private lateinit var tvTotalCalories: TextView
+    private lateinit var tvTotalWorkouts: TextView
+    private lateinit var tvProtein: TextView
+    private lateinit var tvCarbs: TextView
+    private lateinit var tvFat: TextView
+    private lateinit var tvDataTest: TextView
+    private lateinit var weeklyProgressContainer: LinearLayout
+
     private val goalList = mutableListOf<FitnessGoal>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_goals)
 
+        initializeViews()
+        setupRecyclerView()
+        setupClickListeners()
+        loadGoals()
+        updateAllData()
+    }
+
+    private fun initializeViews() {
         recyclerView = findViewById(R.id.goalRecyclerView)
         btnAddGoal = findViewById(R.id.btnAddGoal)
         btnBack = findViewById(R.id.btnBack)
+        btnTestData = findViewById(R.id.btnTestData)
         progressCircle = findViewById(R.id.progressCircle)
         tvGoalsProgress = findViewById(R.id.tvGoalsProgress)
-
-        setupRecyclerView()
-        setupClickListeners()
-        loadSampleGoals()
-        updateOverallProgress()
+        tvTotalCalories = findViewById(R.id.tvTotalCalories)
+        tvTotalWorkouts = findViewById(R.id.tvTotalWorkouts)
+        tvProtein = findViewById(R.id.tvProtein)
+        tvCarbs = findViewById(R.id.tvCarbs)
+        tvFat = findViewById(R.id.tvFat)
+        tvDataTest = findViewById(R.id.tvDataTest)
+        weeklyProgressContainer = findViewById(R.id.weeklyProgressContainer)
     }
 
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = GoalAdapter(goalList) { position ->
-            showDeleteConfirmationDialog(position)
-        }
+        recyclerView.adapter = GoalAdapter(goalList,
+            onDeleteClick = { position ->
+                showDeleteConfirmationDialog(position)
+            },
+            onEditClick = { position ->
+                showEditGoalDialog(position)
+            }
+        )
     }
 
     private fun setupClickListeners() {
@@ -54,11 +83,230 @@ class GoalsActivity : AppCompatActivity() {
         }
 
         btnBack.setOnClickListener {
-            finish() // Close activity and go back to MainActivity
+            finish()
+        }
+
+        btnTestData.setOnClickListener {
+            updateAllData()
         }
     }
 
+    private fun loadGoals() {
+        goalList.clear()
+        goalList.addAll(
+            listOf(
+                FitnessGoal(
+                    title = "Weight Loss",
+                    description = "Lose weight through exercise and diet",
+                    targetValue = 5.0,
+                    currentValue = calculateWeightLossProgress(),
+                    unit = "kg",
+                    goalType = GoalType.WEIGHT_LOSS
+                ),
+                FitnessGoal(
+                    title = "Monthly Workouts",
+                    description = "Complete workouts this month",
+                    targetValue = 20.0,
+                    currentValue = DataRepository.getTotalWorkouts().toDouble(),
+                    unit = "workouts",
+                    goalType = GoalType.ENDURANCE
+                ),
+                FitnessGoal(
+                    title = "Calorie Deficit",
+                    description = "Maintain daily calorie deficit",
+                    targetValue = 500.0,
+                    currentValue = calculateCalorieDeficit(),
+                    unit = "calories",
+                    goalType = GoalType.WEIGHT_LOSS
+                )
+            )
+        )
+        recyclerView.adapter?.notifyDataSetChanged()
+        updateOverallProgress()
+    }
+
+    private fun updateAllData() {
+        updateStatistics()
+        updateNutritionData()
+        setupWeeklyProgressBars()
+        runDataUsageTest()
+        updateOverallProgress()
+    }
+
+    private fun calculateWeightLossProgress(): Double {
+        val workouts = DataRepository.getTotalWorkouts()
+        return (workouts * 0.1).coerceAtMost(5.0)
+    }
+
+    private fun calculateCalorieDeficit(): Double {
+        val totalBurned = DataRepository.getTotalCaloriesBurned()
+        val avgDailyCalories = DataRepository.getAverageDailyCalories()
+        val maintenanceCalories = 2000
+
+        val deficit = (maintenanceCalories * 30 - avgDailyCalories * 30 + totalBurned) / 30.0
+        return deficit.coerceIn(0.0, 500.0)
+    }
+
+    private fun updateStatistics() {
+        val totalCaloriesBurned = DataRepository.getTotalCaloriesBurned()
+        val totalWorkouts = DataRepository.getTotalWorkouts()
+
+        tvTotalCalories.text = "Calories Burned: $totalCaloriesBurned"
+        tvTotalWorkouts.text = "Workouts: $totalWorkouts"
+    }
+
+    private fun updateNutritionData() {
+        val totalProtein = DataRepository.getTotalProtein()
+        val totalCarbs = DataRepository.getTotalCarbs()
+        val totalFat = DataRepository.getTotalFat()
+
+        tvProtein.text = "Protein: ${String.format("%.1f", totalProtein)}g"
+        tvCarbs.text = "Carbs: ${String.format("%.1f", totalCarbs)}g"
+        tvFat.text = "Fat: ${String.format("%.1f", totalFat)}g"
+    }
+
+    private fun setupWeeklyProgressBars() {
+        weeklyProgressContainer.removeAllViews()
+
+        val weeklyData = calculateWeeklyProgress()
+
+        for (weekData in weeklyData) {
+            val weekLayout = LinearLayout(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, 8, 0, 8)
+            }
+
+            val weekLabel = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1.0f
+                )
+                text = weekData.label
+                textSize = 14f
+            }
+
+            val progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    2.0f
+                )
+                progress = weekData.progress
+                progressTintList = android.content.res.ColorStateList.valueOf(
+                    when {
+                        weekData.progress >= 80 -> Color.parseColor("#4CAF50")
+                        weekData.progress >= 50 -> Color.parseColor("#FF9800")
+                        else -> Color.parseColor("#F44336")
+                    }
+                )
+            }
+
+            val progressText = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1.0f
+                )
+                text = "${weekData.progress}%"
+                textSize = 14f
+                gravity = android.view.Gravity.END
+                setTextColor(
+                    when {
+                        weekData.progress >= 80 -> Color.parseColor("#4CAF50")
+                        weekData.progress >= 50 -> Color.parseColor("#FF9800")
+                        else -> Color.parseColor("#F44336")
+                    }
+                )
+            }
+
+            weekLayout.addView(weekLabel)
+            weekLayout.addView(progressBar)
+            weekLayout.addView(progressText)
+            weeklyProgressContainer.addView(weekLayout)
+        }
+    }
+
+    private fun calculateWeeklyProgress(): List<WeekData> {
+        val workouts = DataRepository.getLast30DaysWorkouts()
+
+        if (workouts.isEmpty()) {
+            // Return sample data if no workouts
+            return listOf(
+                WeekData("Week 1", 0),
+                WeekData("Week 2", 0),
+                WeekData("Week 3", 0),
+                WeekData("Week 4", 0)
+            )
+        }
+
+        val calendar = Calendar.getInstance()
+        val weeklyWorkouts = mutableMapOf<String, Int>()
+
+        // Group workouts by week
+        workouts.forEach { workout ->
+            calendar.time = workout.date
+            val weekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
+            val weekKey = "Week $weekNumber"
+            weeklyWorkouts[weekKey] = weeklyWorkouts.getOrDefault(weekKey, 0) + 1
+        }
+
+        // Get last 4 weeks
+        val currentWeek = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)
+        val weeklyProgress = mutableListOf<WeekData>()
+
+        for (i in 3 downTo 0) {
+            val weekNum = currentWeek - i
+            val weekKey = "Week $weekNum"
+            val workoutsThisWeek = weeklyWorkouts[weekKey] ?: 0
+            // Calculate progress based on 5 workouts per week target
+            val progress = (workoutsThisWeek * 100) / 5
+            weeklyProgress.add(WeekData("W${i+1}", progress.coerceAtMost(100)))
+        }
+
+        return weeklyProgress
+    }
+
+    private fun runDataUsageTest() {
+        val testResults = StringBuilder()
+
+        val workouts = DataRepository.getWorkouts().size
+        val meals = DataRepository.getMeals().size
+        val totalCalories = DataRepository.getTotalCaloriesBurned()
+        val totalWorkouts = DataRepository.getTotalWorkouts()
+
+        testResults.append("Data Status:\n")
+        testResults.append("• Workouts: $workouts\n")
+        testResults.append("• Meals: $meals\n")
+        testResults.append("• Calories Burned: $totalCalories\n")
+        testResults.append("• Monthly Workouts: $totalWorkouts\n")
+
+        if (workouts == 0 && meals == 0) {
+            testResults.append("\n💡 Add workouts and meals to see progress!")
+        } else if (workouts > 0 && meals > 0) {
+            testResults.append("\n✅ Data integrated successfully!")
+        } else if (workouts > 0) {
+            testResults.append("\n📊 Workout data loaded. Add meals for nutrition data.")
+        } else {
+            testResults.append("\n🍎 Meal data loaded. Add workouts for exercise data.")
+        }
+
+        tvDataTest.text = testResults.toString()
+    }
+
     private fun showAddGoalDialog() {
+        showGoalDialog(null)
+    }
+
+    private fun showEditGoalDialog(position: Int) {
+        showGoalDialog(goalList[position], position)
+    }
+
+    private fun showGoalDialog(existingGoal: FitnessGoal?, position: Int? = null) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_goal, null)
         val etGoalTitle = dialogView.findViewById<EditText>(R.id.etGoalTitle)
         val etDescription = dialogView.findViewById<EditText>(R.id.etDescription)
@@ -66,10 +314,24 @@ class GoalsActivity : AppCompatActivity() {
         val etCurrent = dialogView.findViewById<EditText>(R.id.etCurrent)
         val etUnit = dialogView.findViewById<EditText>(R.id.etUnit)
 
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Set New Goal")
+        existingGoal?.let { goal ->
+            etGoalTitle.setText(goal.title)
+            etDescription.setText(goal.description)
+            etTarget.setText(goal.targetValue.toString())
+            etCurrent.setText(goal.currentValue.toString())
+            etUnit.setText(goal.unit)
+        }
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle(if (existingGoal == null) "Set New Goal" else "Edit Goal")
             .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
+            .setPositiveButton(if (existingGoal == null) "Add" else "Update", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        alertDialog.setOnShowListener {
+            val button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
                 val title = etGoalTitle.text.toString().trim()
                 val description = etDescription.text.toString().trim()
                 val target = etTarget.text.toString().trim()
@@ -77,23 +339,29 @@ class GoalsActivity : AppCompatActivity() {
                 val unit = etUnit.text.toString().trim()
 
                 if (title.isNotEmpty() && target.isNotEmpty()) {
-                    val newGoal = FitnessGoal(
+                    val goal = FitnessGoal(
                         title = title,
                         description = description.ifEmpty { "Personal fitness goal" },
                         targetValue = target.toDouble(),
                         currentValue = current.toDoubleOrNull() ?: 0.0,
                         unit = unit.ifEmpty { "units" },
-                        goalType = GoalType.WEIGHT_LOSS
+                        goalType = existingGoal?.goalType ?: GoalType.WEIGHT_LOSS
                     )
-                    goalList.add(0, newGoal)
-                    recyclerView.adapter?.notifyItemInserted(0)
+
+                    if (position != null) {
+                        goalList[position] = goal
+                        recyclerView.adapter?.notifyItemChanged(position)
+                    } else {
+                        goalList.add(0, goal)
+                        recyclerView.adapter?.notifyItemInserted(0)
+                    }
                     updateOverallProgress()
+                    alertDialog.dismiss()
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .create()
+        }
 
-        dialog.show()
+        alertDialog.show()
     }
 
     private fun showDeleteConfirmationDialog(position: Int) {
@@ -113,7 +381,7 @@ class GoalsActivity : AppCompatActivity() {
     private fun updateOverallProgress() {
         if (goalList.isEmpty()) {
             progressCircle.progress = 0
-            tvGoalsProgress.text = "Set your first goal!"
+            tvGoalsProgress.text = "0%"
             return
         }
 
@@ -123,63 +391,31 @@ class GoalsActivity : AppCompatActivity() {
         val averageProgress = (totalProgress / goalList.size).toInt()
 
         progressCircle.progress = averageProgress
-        tvGoalsProgress.text = "Overall Progress: $averageProgress%"
+        tvGoalsProgress.text = "$averageProgress%"
 
-        // Change color based on progress
         when {
             averageProgress >= 80 -> {
-                progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(0xFF4CAF50.toInt())
-                tvGoalsProgress.setTextColor(0xFF4CAF50.toInt())
+                progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+                tvGoalsProgress.setTextColor(Color.parseColor("#4CAF50"))
             }
             averageProgress >= 50 -> {
-                progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(0xFFFF9800.toInt())
-                tvGoalsProgress.setTextColor(0xFFFF9800.toInt())
+                progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800"))
+                tvGoalsProgress.setTextColor(Color.parseColor("#FF9800"))
             }
             else -> {
-                progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(0xFFF44336.toInt())
-                tvGoalsProgress.setTextColor(0xFFF44336.toInt())
+                progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F44336"))
+                tvGoalsProgress.setTextColor(Color.parseColor("#F44336"))
             }
         }
     }
-
-    private fun loadSampleGoals() {
-        goalList.addAll(
-            listOf(
-                FitnessGoal(
-                    title = "Lose Weight",
-                    description = "Target weight loss goal",
-                    targetValue = 75.0,
-                    currentValue = 80.0,
-                    unit = "kg",
-                    goalType = GoalType.WEIGHT_LOSS
-                ),
-                FitnessGoal(
-                    title = "Weekly Workouts",
-                    description = "Complete workouts per week",
-                    targetValue = 5.0,
-                    currentValue = 3.0,
-                    unit = "sessions",
-                    goalType = GoalType.ENDURANCE
-                ),
-                FitnessGoal(
-                    title = "Calorie Intake",
-                    description = "Daily calorie target",
-                    targetValue = 2000.0,
-                    currentValue = 1800.0,
-                    unit = "calories",
-                    goalType = GoalType.WEIGHT_LOSS
-                )
-            )
-        )
-        recyclerView.adapter?.notifyDataSetChanged()
-        updateOverallProgress()
-    }
 }
 
-// CORRECTED GoalAdapter class with all required methods
+data class WeekData(val label: String, val progress: Int)
+
 class GoalAdapter(
     private val goals: List<FitnessGoal>,
-    private val onDeleteClick: (Int) -> Unit
+    private val onDeleteClick: (Int) -> Unit,
+    private val onEditClick: (Int) -> Unit
 ) : RecyclerView.Adapter<GoalAdapter.GoalViewHolder>() {
 
     class GoalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -189,6 +425,7 @@ class GoalAdapter(
         val goalType: TextView = itemView.findViewById(R.id.tvGoalType)
         val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
         val btnDelete: ImageButton = itemView.findViewById(R.id.btnDelete)
+        val btnEdit: ImageButton = itemView.findViewById(R.id.btnEdit)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GoalViewHolder {
@@ -207,15 +444,18 @@ class GoalAdapter(
         holder.goalType.text = "Type: ${goal.goalType.name}"
         holder.progressBar.progress = progress
 
-        // Change progress bar color based on completion
         when {
-            progress >= 100 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(0xFF4CAF50.toInt())
-            progress >= 50 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(0xFFFF9800.toInt())
-            else -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(0xFFF44336.toInt())
+            progress >= 100 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+            progress >= 50 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800"))
+            else -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F44336"))
         }
 
         holder.btnDelete.setOnClickListener {
             onDeleteClick(position)
+        }
+
+        holder.btnEdit.setOnClickListener {
+            onEditClick(position)
         }
     }
 
