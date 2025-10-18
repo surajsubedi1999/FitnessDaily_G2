@@ -9,17 +9,19 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import subedi.suraj.fitnessdaily.model.Meal
 import subedi.suraj.fitnessdaily.model.MealType
+import subedi.suraj.fitnessdaily.repository.DataRepository
+import java.util.Date
 
 class NutritionFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnAddMeal: Button
-    private lateinit var btnBackToWorkout: Button
     private val mealList = mutableListOf<Meal>()
 
     override fun onCreateView(
@@ -34,11 +36,10 @@ class NutritionFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.mealRecyclerView)
         btnAddMeal = view.findViewById(R.id.btnAddMeal)
-        btnBackToWorkout = view.findViewById(R.id.btnBackToWorkout)
 
         setupRecyclerView()
         setupClickListeners()
-        loadSampleMeals()
+        loadMeals()
     }
 
     private fun setupRecyclerView() {
@@ -52,11 +53,6 @@ class NutritionFragment : Fragment() {
         btnAddMeal.setOnClickListener {
             showAddMealDialog()
         }
-
-        btnBackToWorkout.setOnClickListener {
-            // Go back to WorkoutFragment
-            requireActivity().supportFragmentManager.popBackStack()
-        }
     }
 
     private fun showAddMealDialog() {
@@ -67,33 +63,48 @@ class NutritionFragment : Fragment() {
         val etCarbs = dialogView.findViewById<EditText>(R.id.etCarbs)
         val etFat = dialogView.findViewById<EditText>(R.id.etFat)
 
-        val dialog = AlertDialog.Builder(requireContext())
+        val alertDialog = AlertDialog.Builder(requireContext())
             .setTitle("Add New Meal")
             .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
+            .setPositiveButton("Add", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        alertDialog.setOnShowListener {
+            val addButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            addButton.setOnClickListener {
                 val name = etMealName.text.toString().trim()
                 val calories = etCalories.text.toString().trim()
                 val protein = etProtein.text.toString().trim()
                 val carbs = etCarbs.text.toString().trim()
                 val fat = etFat.text.toString().trim()
 
-                if (name.isNotEmpty() && calories.isNotEmpty()) {
-                    val newMeal = Meal(
-                        name = name,
-                        calories = calories.toInt(),
-                        protein = protein.toDoubleOrNull() ?: 0.0,
-                        carbs = carbs.toDoubleOrNull() ?: 0.0,
-                        fat = fat.toDoubleOrNull() ?: 0.0,
-                        mealType = MealType.LUNCH
-                    )
-                    mealList.add(0, newMeal)
-                    recyclerView.adapter?.notifyItemInserted(0)
+                if (name.isEmpty() || calories.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please fill name and calories", Toast.LENGTH_SHORT).show()
+                } else {
+                    try {
+                        val newMeal = Meal(
+                            name = name,
+                            calories = calories.toInt(),
+                            protein = protein.toDoubleOrNull() ?: 0.0,
+                            carbs = carbs.toDoubleOrNull() ?: 0.0,
+                            fat = fat.toDoubleOrNull() ?: 0.0,
+                            mealType = MealType.LUNCH,
+                            date = Date()
+                        )
+                        mealList.add(0, newMeal)
+                        DataRepository.addMeal(newMeal)
+                        recyclerView.adapter?.notifyItemInserted(0)
+                        Toast.makeText(requireContext(), "Meal added successfully", Toast.LENGTH_SHORT).show()
+                        alertDialog.dismiss()
+                    } catch (e: NumberFormatException) {
+                        Toast.makeText(requireContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .create()
+        }
 
-        dialog.show()
+        alertDialog.show()
     }
 
     private fun showDeleteConfirmationDialog(position: Int) {
@@ -109,27 +120,17 @@ class NutritionFragment : Fragment() {
             .show()
     }
 
-    private fun loadSampleMeals() {
-        mealList.addAll(
-            listOf(
-                Meal(
-                    name = "Chicken Salad",
-                    calories = 350,
-                    protein = 30.0,
-                    carbs = 20.0,
-                    fat = 12.0,
-                    mealType = MealType.LUNCH
-                ),
-                Meal(
-                    name = "Protein Shake",
-                    calories = 200,
-                    protein = 25.0,
-                    carbs = 15.0,
-                    fat = 5.0,
-                    mealType = MealType.SNACK
-                )
+    private fun loadMeals() {
+        mealList.clear()
+        mealList.addAll(DataRepository.getMeals())
+        if (mealList.isEmpty()) {
+            val sampleMeals = listOf(
+                Meal(name = "Chicken Salad", calories = 350, protein = 30.0, carbs = 20.0, fat = 12.0, mealType = MealType.LUNCH, date = Date()),
+                Meal(name = "Protein Shake", calories = 200, protein = 25.0, carbs = 15.0, fat = 5.0, mealType = MealType.SNACK, date = Date())
             )
-        )
+            mealList.addAll(sampleMeals)
+            sampleMeals.forEach { DataRepository.addMeal(it) }
+        }
         recyclerView.adapter?.notifyDataSetChanged()
     }
 }

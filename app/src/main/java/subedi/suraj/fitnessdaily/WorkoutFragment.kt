@@ -9,9 +9,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import subedi.suraj.fitnessdaily.model.Workout
+import subedi.suraj.fitnessdaily.repository.DataRepository
+import java.util.Date
 
 class WorkoutFragment : Fragment() {
 
@@ -34,7 +38,7 @@ class WorkoutFragment : Fragment() {
 
         setupRecyclerView()
         setupClickListeners()
-        loadSampleWorkouts()
+        loadWorkouts()
     }
 
     private fun setupRecyclerView() {
@@ -56,29 +60,44 @@ class WorkoutFragment : Fragment() {
         val etWorkoutDuration = dialogView.findViewById<EditText>(R.id.etWorkoutDuration)
         val etWorkoutCalories = dialogView.findViewById<EditText>(R.id.etWorkoutCalories)
 
-        val dialog = AlertDialog.Builder(requireContext())
+        val alertDialog = AlertDialog.Builder(requireContext())
             .setTitle("Add New Workout")
             .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
+            .setPositiveButton("Add", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        alertDialog.setOnShowListener {
+            val addButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            addButton.setOnClickListener {
                 val name = etWorkoutName.text.toString().trim()
                 val duration = etWorkoutDuration.text.toString().trim()
                 val calories = etWorkoutCalories.text.toString().trim()
 
-                if (name.isNotEmpty() && duration.isNotEmpty() && calories.isNotEmpty()) {
-                    val newWorkout = Workout(
-                        name = name,
-                        duration = duration.toInt(),
-                        caloriesBurned = calories.toInt()
-                    )
-                    workoutList.add(0, newWorkout)
-                    recyclerView.adapter?.notifyItemInserted(0)
-                    recyclerView.smoothScrollToPosition(0)
+                if (name.isEmpty() || duration.isEmpty() || calories.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+                } else {
+                    try {
+                        val newWorkout = Workout(
+                            name = name,
+                            duration = duration.toInt(),
+                            caloriesBurned = calories.toInt(),
+                            date = Date()
+                        )
+                        workoutList.add(0, newWorkout)
+                        DataRepository.addWorkout(newWorkout)
+                        recyclerView.adapter?.notifyItemInserted(0)
+                        recyclerView.smoothScrollToPosition(0)
+                        Toast.makeText(requireContext(), "Workout added successfully", Toast.LENGTH_SHORT).show()
+                        alertDialog.dismiss()
+                    } catch (e: NumberFormatException) {
+                        Toast.makeText(requireContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .create()
+        }
 
-        dialog.show()
+        alertDialog.show()
     }
 
     private fun showDeleteConfirmationDialog(position: Int) {
@@ -94,25 +113,21 @@ class WorkoutFragment : Fragment() {
             .show()
     }
 
-    private fun loadSampleWorkouts() {
+    private fun loadWorkouts() {
         workoutList.clear()
-        workoutList.addAll(
-            listOf(
-                Workout("Morning Cardio", 45, 350),
-                Workout("Strength Training", 60, 450),
-                Workout("Full Body Workout", 50, 400)
+        workoutList.addAll(DataRepository.getWorkouts())
+        if (workoutList.isEmpty()) {
+            val sampleWorkouts = listOf(
+                Workout(name = "Morning Cardio", duration = 45, caloriesBurned = 350, date = Date()),
+                Workout(name = "Strength Training", duration = 60, caloriesBurned = 450, date = Date()),
+                Workout(name = "Full Body Workout", duration = 50, caloriesBurned = 400, date = Date())
             )
-        )
+            workoutList.addAll(sampleWorkouts)
+            sampleWorkouts.forEach { DataRepository.addWorkout(it) }
+        }
         recyclerView.adapter?.notifyDataSetChanged()
     }
 }
-
-// Simple data class - put this in the same file
-data class Workout(
-    val name: String,
-    val duration: Int,
-    val caloriesBurned: Int
-)
 
 class WorkoutAdapter(
     private val workouts: List<Workout>,
@@ -135,8 +150,8 @@ class WorkoutAdapter(
     override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
         val workout = workouts[position]
         holder.workoutName.text = workout.name
-        holder.workoutDuration.text = "⏱️ ${workout.duration} minutes"
-        holder.workoutCalories.text = "🔥 ${workout.caloriesBurned} calories"
+        holder.workoutDuration.text = "Duration: ${workout.duration} min"
+        holder.workoutCalories.text = "Calories: ${workout.caloriesBurned}"
 
         holder.btnDelete.setOnClickListener {
             onDeleteClick(position)

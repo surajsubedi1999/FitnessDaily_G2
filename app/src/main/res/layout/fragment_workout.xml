@@ -3,31 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#F5F5F5">
+    android:padding="16dp">
 
-
-
-
-
-    <!-- Add Workout Button -->
     <Button
         android:id="@+id/btnAddWorkout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=" Add New Workout"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="20dp"
-        android:padding="16dp"
-        android:background="#4CAF50"
-        android:textColor="@android:color/white" />
+        android:text="Add Workout"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Workout List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/workoutRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

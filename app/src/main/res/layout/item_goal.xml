@@ -2,81 +2,87 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
     android:padding="16dp"
-    android:background="@android:color/white"
     android:layout_margin="8dp"
-    android:elevation="4dp">
+    android:elevation="2dp">
 
-    <!-- Goal Info -->
+    <!-- Header with title and buttons -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-        <!-- Goal Title -->
         <TextView
             android:id="@+id/tvGoalTitle"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Goal Title"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#333333" />
-
-        <!-- Goal Description -->
-        <TextView
-            android:id="@+id/tvGoalDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Goal Description"
-            android:textSize="14sp"
-            android:textColor="#666666" />
-
-        <!-- Progress Text -->
-        <TextView
-            android:id="@+id/tvGoalProgress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Progress: 0/0 units (0%)"
-            android:textSize="14sp"
-            android:textColor="#4CAF50"
             android:textStyle="bold" />
 
-        <!-- Progress Bar -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:layout_marginTop="8dp"
-            android:progress="0"
-            android:progressTint="#4CAF50" />
-
-        <!-- Goal Type -->
-        <TextView
-            android:id="@+id/tvGoalType"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Type: WEIGHT_LOSS"
-            android:textSize="12sp"
-            android:textColor="#888888" />
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnEdit"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit goal" />
+
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete goal" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Delete Button -->
-    <ImageButton
-        android:id="@+id/btnDelete"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_vertical"
-        android:background="?attr/selectableItemBackground"
-        android:src="@android:drawable/ic_delete"
-        android:contentDescription="Delete goal"
-        android:tint="#FF4444" />
+    <TextView
+        android:id="@+id/tvGoalDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Goal Description"
+        android:textSize="14sp"
+        android:textColor="#666"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/tvGoalProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Progress: 0/0 units (0%)"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvGoalType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Type: WEIGHT_LOSS"
+        android:textSize="12sp"
+        android:textColor="#666"
+        android:layout_marginTop="4dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginTop="8dp"
+        android:progress="0" />
 
 </LinearLayout>
