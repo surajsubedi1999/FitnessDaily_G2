@@ -8,7 +8,9 @@ data class Workout(
     val duration: Int,
     val caloriesBurned: Int,
     val date: Date = Date(),
-    val exercises: List<Exercise> = emptyList()
+    val exercises: List<Exercise> = emptyList(),
+    val isFavorite: Boolean = false
+
 )
 
 data class Exercise(
