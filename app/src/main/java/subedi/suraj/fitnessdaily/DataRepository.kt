@@ -8,6 +8,7 @@ import java.util.Date
 object DataRepository {
     private val workouts = mutableListOf<Workout>()
     private val meals = mutableListOf<Meal>()
+    private val favoriteWorkoutTemplates = mutableListOf<Workout>()
 
     // Workout methods
     fun addWorkout(workout: Workout) {
@@ -15,6 +16,60 @@ object DataRepository {
     }
 
     fun getWorkouts(): List<Workout> = workouts.toList()
+
+    fun getFavoriteWorkoutTemplates(): List<Workout> = favoriteWorkoutTemplates.toList()
+
+    fun addFavoriteTemplate(workout: Workout) {
+        // Check if template already exists to avoid duplicates ONLY in favorites
+        if (!favoriteWorkoutTemplates.any {
+                it.name == workout.name &&
+                        it.duration == workout.duration &&
+                        it.caloriesBurned == workout.caloriesBurned
+            }) {
+            favoriteWorkoutTemplates.add(workout.copy(isFavorite = true))
+        }
+    }
+
+    fun removeFavoriteTemplate(workout: Workout) {
+        favoriteWorkoutTemplates.removeAll {
+            it.name == workout.name &&
+                    it.duration == workout.duration &&
+                    it.caloriesBurned == workout.caloriesBurned
+        }
+    }
+
+    fun isFavoriteTemplate(workout: Workout): Boolean {
+        return favoriteWorkoutTemplates.any {
+            it.name == workout.name &&
+                    it.duration == workout.duration &&
+                    it.caloriesBurned == workout.caloriesBurned
+        }
+    }
+
+    // New method to update workout favorite status in the main workouts list
+    fun updateWorkoutFavorite(workoutId: Long, isFavorite: Boolean) {
+        val index = workouts.indexOfFirst { it.id == workoutId }
+        if (index != -1) {
+            workouts[index] = workouts[index].copy(isFavorite = isFavorite)
+        }
+    }
+
+    // New method to remove workout from all favorites and update all matching workouts
+    fun removeWorkoutFromAllFavorites(workoutName: String, duration: Int, caloriesBurned: Int) {
+        // Remove from favorite templates
+        favoriteWorkoutTemplates.removeAll {
+            it.name == workoutName &&
+                    it.duration == duration &&
+                    it.caloriesBurned == caloriesBurned
+        }
+
+        // Update all workouts with same details to not favorite
+        workouts.forEachIndexed { index, w ->
+            if (w.name == workoutName && w.duration == duration && w.caloriesBurned == caloriesBurned) {
+                workouts[index] = w.copy(isFavorite = false)
+            }
+        }
+    }
 
     fun getLast30DaysWorkouts(): List<Workout> {
         val calendar = Calendar.getInstance()

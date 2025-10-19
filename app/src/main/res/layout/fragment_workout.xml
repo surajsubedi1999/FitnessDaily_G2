@@ -6,14 +6,33 @@
     android:padding="16dp"
     android:background="?android:attr/colorBackground">
 
-    <Button
-        android:id="@+id/btnAddWorkout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Workout"
-        android:textColor="?android:attr/textColorPrimary"
-        android:background="?android:attr/colorButtonNormal"
-        android:layout_marginBottom="16dp" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btnAddWorkout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Add New Workout"
+            android:textColor="#FFFFFFFF"
+            android:background="#FF018786"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnFavorites"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Favorites"
+            android:textColor="#FFFFFFFF"
+            android:background="#FF6200EE"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/workoutRecyclerView"
