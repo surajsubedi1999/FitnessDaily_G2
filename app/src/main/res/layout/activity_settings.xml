@@ -105,6 +105,29 @@
         android:text="App will restart to apply theme changes"
         android:textSize="12sp"
         android:textColor="?android:attr/textColorSecondary"
-        android:gravity="center" />
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Delete All Data Button -->
+    <Button
+        android:id="@+id/btnDeleteAllData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete All Data"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#FF0000"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:padding="16dp" />
+
+    <!-- Delete Warning Text -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This will permanently delete all your workouts, meals, and progress data"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:gravity="center"
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>

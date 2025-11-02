@@ -118,4 +118,11 @@ object DataRepository {
     fun getTotalFat(): Double {
         return getLast30DaysMeals().sumOf { it.fat }
     }
+
+    // ADD THIS METHOD FOR DELETING ALL DATA
+    fun clearAllData() {
+        workouts.clear()
+        meals.clear()
+        favoriteWorkoutTemplates.clear()
+    }
 }
