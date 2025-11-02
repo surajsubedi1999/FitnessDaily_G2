@@ -34,4 +34,6 @@
     <color name="dark_button_background">#FFBB86FC</color> <!-- Lighter purple -->
     <color name="dark_button_text">#FF000000</color> <!-- Black text for contrast -->
     <color name="dark_button_border">#FFBB86FC</color>
+    <color name="red">#FF0000</color>
+
 </resources>
