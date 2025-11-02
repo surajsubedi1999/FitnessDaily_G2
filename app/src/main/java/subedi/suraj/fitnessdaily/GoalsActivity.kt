@@ -19,6 +19,7 @@ import subedi.suraj.fitnessdaily.model.FitnessGoal
 import subedi.suraj.fitnessdaily.model.GoalType
 import subedi.suraj.fitnessdaily.repository.DataRepository
 import java.util.Calendar
+import java.util.Date
 
 class GoalsActivity : AppCompatActivity() {
 
@@ -37,6 +38,7 @@ class GoalsActivity : AppCompatActivity() {
     private lateinit var weeklyProgressContainer: LinearLayout
 
     private val goalList = mutableListOf<FitnessGoal>()
+    private var completedGoalsCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +48,8 @@ class GoalsActivity : AppCompatActivity() {
         setupRecyclerView()
         setupClickListeners()
         loadGoals()
-        updateAllData()
+        loadCompletedGoalsCount()
+        updateAllData() // Moved after method definitions
     }
 
     private fun initializeViews() {
@@ -73,6 +76,9 @@ class GoalsActivity : AppCompatActivity() {
             },
             onEditClick = { position ->
                 showEditGoalDialog(position)
+            },
+            onCompleteClick = { position ->
+                markGoalAsCompleted(position)
             }
         )
     }
@@ -101,7 +107,8 @@ class GoalsActivity : AppCompatActivity() {
                     targetValue = 5.0,
                     currentValue = calculateWeightLossProgress(),
                     unit = "kg",
-                    goalType = GoalType.WEIGHT_LOSS
+                    goalType = GoalType.WEIGHT_LOSS,
+                    isCompleted = false
                 ),
                 FitnessGoal(
                     title = "Monthly Workouts",
@@ -109,7 +116,8 @@ class GoalsActivity : AppCompatActivity() {
                     targetValue = 20.0,
                     currentValue = DataRepository.getTotalWorkouts().toDouble(),
                     unit = "workouts",
-                    goalType = GoalType.ENDURANCE
+                    goalType = GoalType.ENDURANCE,
+                    isCompleted = false
                 ),
                 FitnessGoal(
                     title = "Calorie Deficit",
@@ -117,7 +125,8 @@ class GoalsActivity : AppCompatActivity() {
                     targetValue = 500.0,
                     currentValue = calculateCalorieDeficit(),
                     unit = "calories",
-                    goalType = GoalType.WEIGHT_LOSS
+                    goalType = GoalType.WEIGHT_LOSS,
+                    isCompleted = false
                 )
             )
         )
@@ -125,12 +134,14 @@ class GoalsActivity : AppCompatActivity() {
         updateOverallProgress()
     }
 
-    private fun updateAllData() {
-        updateStatistics()
-        updateNutritionData()
-        setupWeeklyProgressBars()
-        runDataUsageTest()
-        updateOverallProgress()
+    private fun loadCompletedGoalsCount() {
+        val sharedPreferences = getSharedPreferences("goals_data", MODE_PRIVATE)
+        completedGoalsCount = sharedPreferences.getInt("completed_goals_count", 0)
+    }
+
+    private fun saveCompletedGoalsCount() {
+        val sharedPreferences = getSharedPreferences("goals_data", MODE_PRIVATE)
+        sharedPreferences.edit().putInt("completed_goals_count", completedGoalsCount).apply()
     }
 
     private fun calculateWeightLossProgress(): Double {
@@ -145,6 +156,15 @@ class GoalsActivity : AppCompatActivity() {
 
         val deficit = (maintenanceCalories * 30 - avgDailyCalories * 30 + totalBurned) / 30.0
         return deficit.coerceIn(0.0, 500.0)
+    }
+
+    // MOVE updateAllData() HERE - before it's called in onCreate
+    private fun updateAllData() {
+        updateStatistics()
+        updateNutritionData()
+        setupWeeklyProgressBars()
+        runDataUsageTest()
+        updateOverallProgress()
     }
 
     private fun updateStatistics() {
@@ -275,12 +295,14 @@ class GoalsActivity : AppCompatActivity() {
         val meals = DataRepository.getMeals().size
         val totalCalories = DataRepository.getTotalCaloriesBurned()
         val totalWorkouts = DataRepository.getTotalWorkouts()
+        val completedGoals = completedGoalsCount
 
         testResults.append("Data Status:\n")
         testResults.append("• Workouts: $workouts\n")
         testResults.append("• Meals: $meals\n")
         testResults.append("• Calories Burned: $totalCalories\n")
         testResults.append("• Monthly Workouts: $totalWorkouts\n")
+        testResults.append("• Completed Goals: $completedGoals\n")
 
         if (workouts == 0 && meals == 0) {
             testResults.append("\n💡 Add workouts and meals to see progress!")
@@ -342,7 +364,8 @@ class GoalsActivity : AppCompatActivity() {
                         targetValue = target.toDouble(),
                         currentValue = current.toDoubleOrNull() ?: 0.0,
                         unit = unit.ifEmpty { "units" },
-                        goalType = existingGoal?.goalType ?: GoalType.WEIGHT_LOSS
+                        goalType = existingGoal?.goalType ?: GoalType.WEIGHT_LOSS,
+                        isCompleted = existingGoal?.isCompleted ?: false
                     )
 
                     if (position != null) {
@@ -375,6 +398,59 @@ class GoalsActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun markGoalAsCompleted(position: Int) {
+        val goal = goalList[position]
+
+        if (!goal.isCompleted) {
+            AlertDialog.Builder(this)
+                .setTitle("Complete Goal")
+                .setMessage("Mark '${goal.title}' as completed?")
+                .setPositiveButton("Complete") { _, _ ->
+                    // Mark goal as completed
+                    goalList[position] = goal.copy(isCompleted = true)
+                    recyclerView.adapter?.notifyItemChanged(position)
+
+                    // Track achievement
+                    completedGoalsCount++
+                    saveCompletedGoalsCount()
+
+                    // Notify DataRepository for achievement tracking
+                    DataRepository.completeGoal()
+
+                    // Show success message
+                    showCompletionMessage(goal.title)
+
+                    updateOverallProgress()
+                    updateAllData()
+                }
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show()
+        } else {
+            // Option to mark as incomplete
+            AlertDialog.Builder(this)
+                .setTitle("Reopen Goal")
+                .setMessage("Mark '${goal.title}' as incomplete?")
+                .setPositiveButton("Reopen") { _, _ ->
+                    goalList[position] = goal.copy(isCompleted = false)
+                    recyclerView.adapter?.notifyItemChanged(position)
+                    updateOverallProgress()
+                }
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCompletionMessage(goalTitle: String) {
+        AlertDialog.Builder(this)
+            .setTitle("🎉 Goal Completed!")
+            .setMessage("Congratulations! You've completed '$goalTitle'.\n\nThis achievement has been recorded in your progress!")
+            .setPositiveButton("Awesome!", null)
+            .create()
+            .show()
+    }
+
     private fun updateOverallProgress() {
         if (goalList.isEmpty()) {
             progressCircle.progress = 0
@@ -382,20 +458,19 @@ class GoalsActivity : AppCompatActivity() {
             return
         }
 
-        val totalProgress = goalList.sumOf { goal ->
-            ((goal.currentValue / goal.targetValue) * 100).coerceAtMost(100.0)
-        }
-        val averageProgress = (totalProgress / goalList.size).toInt()
+        val completedGoals = goalList.count { it.isCompleted }
+        val totalGoals = goalList.size
+        val completionPercentage = if (totalGoals > 0) (completedGoals * 100) / totalGoals else 0
 
-        progressCircle.progress = averageProgress
-        tvGoalsProgress.text = "$averageProgress%"
+        progressCircle.progress = completionPercentage
+        tvGoalsProgress.text = "$completionPercentage%"
 
         when {
-            averageProgress >= 80 -> {
+            completionPercentage >= 80 -> {
                 progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
                 tvGoalsProgress.setTextColor(Color.parseColor("#4CAF50"))
             }
-            averageProgress >= 50 -> {
+            completionPercentage >= 50 -> {
                 progressCircle.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800"))
                 tvGoalsProgress.setTextColor(Color.parseColor("#FF9800"))
             }
@@ -412,7 +487,8 @@ data class WeekData(val label: String, val progress: Int)
 class GoalAdapter(
     private val goals: List<FitnessGoal>,
     private val onDeleteClick: (Int) -> Unit,
-    private val onEditClick: (Int) -> Unit
+    private val onEditClick: (Int) -> Unit,
+    private val onCompleteClick: (Int) -> Unit
 ) : RecyclerView.Adapter<GoalAdapter.GoalViewHolder>() {
 
     class GoalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -423,6 +499,8 @@ class GoalAdapter(
         val progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
         val btnDelete: ImageButton = itemView.findViewById(R.id.btnDelete)
         val btnEdit: ImageButton = itemView.findViewById(R.id.btnEdit)
+        val btnComplete: Button = itemView.findViewById(R.id.btnComplete)
+        val completedBadge: TextView = itemView.findViewById(R.id.tvCompletedBadge)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GoalViewHolder {
@@ -441,10 +519,25 @@ class GoalAdapter(
         holder.goalType.text = "Type: ${goal.goalType.name}"
         holder.progressBar.progress = progress
 
-        when {
-            progress >= 100 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
-            progress >= 50 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800"))
-            else -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F44336"))
+        // Update UI based on completion status
+        if (goal.isCompleted) {
+            holder.btnComplete.text = "Completed ✓"
+            holder.btnComplete.setBackgroundColor(Color.parseColor("#4CAF50"))
+            holder.btnComplete.setTextColor(Color.WHITE)
+            holder.completedBadge.visibility = View.VISIBLE
+            holder.progressBar.progress = 100
+            holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+        } else {
+            holder.btnComplete.text = "Mark Complete"
+            holder.btnComplete.setBackgroundColor(Color.parseColor("#2196F3"))
+            holder.btnComplete.setTextColor(Color.WHITE)
+            holder.completedBadge.visibility = View.GONE
+
+            when {
+                progress >= 100 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+                progress >= 50 -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800"))
+                else -> holder.progressBar.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F44336"))
+            }
         }
 
         holder.btnDelete.setOnClickListener {
@@ -453,6 +546,10 @@ class GoalAdapter(
 
         holder.btnEdit.setOnClickListener {
             onEditClick(position)
+        }
+
+        holder.btnComplete.setOnClickListener {
+            onCompleteClick(position)
         }
     }
 

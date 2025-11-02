@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/ivAchievementStatus"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="12dp"
+        android:src="@android:drawable/presence_online" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvAchievementTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Achievement Title"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <TextView
+            android:id="@+id/tvAchievementDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Achievement description"
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginTop="2dp" />
+
+        <TextView
+            android:id="@+id/tvAchievementProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0/10 (0%)"
+            android:textSize="12sp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginTop="4dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBarAchievement"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="4dp"
+            android:progress="0" />
+
+    </LinearLayout>
+
+</LinearLayout>

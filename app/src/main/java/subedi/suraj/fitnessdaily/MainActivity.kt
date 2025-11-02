@@ -7,6 +7,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import subedi.suraj.fitnessdaily.repository.DataRepository
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +21,9 @@ class MainActivity : AppCompatActivity() {
         applySavedTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Initialize DataRepository with context for achievements
+        DataRepository.initializeAppContext(this)
 
         initializeViews()
         setupNavigation()
