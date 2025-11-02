@@ -3,7 +3,6 @@ package subedi.suraj.fitnessdaily
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.RadioButton
@@ -19,6 +18,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private lateinit var btnBack: Button
     private lateinit var btnDeleteAllData: Button
+    private lateinit var btnAchievements: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
         btnSave = findViewById(R.id.btnSave)
         btnBack = findViewById(R.id.btnBack)
         btnDeleteAllData = findViewById(R.id.btnDeleteAllData)
+        btnAchievements = findViewById(R.id.btnAchievements)
     }
 
     private fun setupClickListeners() {
@@ -48,6 +49,121 @@ class SettingsActivity : AppCompatActivity() {
         btnDeleteAllData.setOnClickListener {
             showDeleteConfirmationDialog()
         }
+
+        btnAchievements.setOnClickListener {
+            showAchievementsDialog()
+        }
+    }
+
+    // UPDATED: Show achievements dialog with real data
+    private fun showAchievementsDialog() {
+        val achievements = DataRepository.getAchievements()
+        val earnedAchievements = DataRepository.getEarnedAchievements()
+        val progress = DataRepository.getAchievementProgress()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_achievements, null)
+        val achievementsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.achievementsContainer)
+        val tvProgress = dialogView.findViewById<android.widget.TextView>(R.id.tvAchievementProgress)
+
+        // Update progress text with real data
+        tvProgress.text = "🎯 Your Progress: ${earnedAchievements.size}/${achievements.size} achievements earned"
+
+        // Clear existing views
+        achievementsContainer.removeAllViews()
+
+        // Add each achievement to the dialog with real progress data
+        achievements.forEach { achievement ->
+            val achievementView = layoutInflater.inflate(R.layout.item_achievement, null)
+            val tvTitle = achievementView.findViewById<android.widget.TextView>(R.id.tvAchievementTitle)
+            val tvDescription = achievementView.findViewById<android.widget.TextView>(R.id.tvAchievementDescription)
+            val tvProgress = achievementView.findViewById<android.widget.TextView>(R.id.tvAchievementProgress)
+            val progressBar = achievementView.findViewById<android.widget.ProgressBar>(R.id.progressBarAchievement)
+            val ivStatus = achievementView.findViewById<android.widget.ImageView>(R.id.ivAchievementStatus)
+
+            tvTitle.text = achievement.title
+            tvDescription.text = achievement.description
+
+            // Get REAL progress data from DataRepository
+            val (currentProgress, progressText) = when (achievement.type) {
+                subedi.suraj.fitnessdaily.model.AchievementType.WORKOUT_COUNT -> {
+                    val workoutCount = progress["workout_count"] ?: 0
+                    val text = "Workouts completed: $workoutCount/${achievement.milestone}"
+                    Pair(workoutCount, text)
+                }
+                subedi.suraj.fitnessdaily.model.AchievementType.MEAL_COUNT -> {
+                    val mealCount = progress["meal_count"] ?: 0
+                    val text = "Meals logged: $mealCount/${achievement.milestone}"
+                    Pair(mealCount, text)
+                }
+                subedi.suraj.fitnessdaily.model.AchievementType.GOAL_COMPLETED -> {
+                    val goalsCompleted = progress["goals_completed"] ?: 0
+                    val text = "Goals completed: $goalsCompleted/${achievement.milestone}"
+                    Pair(goalsCompleted, text)
+                }
+                subedi.suraj.fitnessdaily.model.AchievementType.STREAK_DAYS -> {
+                    val currentStreak = progress["current_streak"] ?: 0
+                    val text = "Current streak: $currentStreak/${achievement.milestone} days"
+                    Pair(currentStreak, text)
+                }
+            }
+
+            // Calculate progress percentage
+            val progressPercentage = if (achievement.milestone > 0) {
+                (currentProgress * 100) / achievement.milestone
+            } else {
+                0
+            }.coerceAtMost(100)
+
+            tvProgress.text = progressText
+            progressBar.progress = progressPercentage
+
+            // Set status based on real earned status
+            if (achievement.earned) {
+                ivStatus.setImageResource(android.R.drawable.presence_online)
+                ivStatus.setColorFilter(android.graphics.Color.parseColor("#4CAF50"))
+                tvTitle.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+                achievementView.alpha = 1.0f
+
+                // Show earned date if available
+                achievement.earnedDate?.let { date ->
+                    val dateText = "\nEarned on: ${android.text.format.DateFormat.getDateFormat(this).format(date)}"
+                    tvProgress.text = tvProgress.text.toString() + dateText
+                }
+            } else {
+                ivStatus.setImageResource(android.R.drawable.presence_invisible)
+                ivStatus.setColorFilter(android.graphics.Color.parseColor("#9E9E9E"))
+                tvTitle.setTextColor(android.graphics.Color.parseColor("#9E9E9E"))
+                achievementView.alpha = 0.7f
+            }
+
+            achievementsContainer.addView(achievementView)
+        }
+
+        // Add real statistics summary
+        val summaryView = layoutInflater.inflate(R.layout.item_achievement_summary, null)
+        val tvWorkouts = summaryView.findViewById<android.widget.TextView>(R.id.tvWorkoutsSummary)
+        val tvMeals = summaryView.findViewById<android.widget.TextView>(R.id.tvMealsSummary)
+        val tvGoals = summaryView.findViewById<android.widget.TextView>(R.id.tvGoalsSummary)
+        val tvStreak = summaryView.findViewById<android.widget.TextView>(R.id.tvStreakSummary)
+
+        tvWorkouts.text = "Total Workouts: ${progress["workout_count"] ?: 0}"
+        tvMeals.text = "Total Meals: ${progress["meal_count"] ?: 0}"
+        tvGoals.text = "Completed Goals: ${progress["goals_completed"] ?: 0}"
+        tvStreak.text = "Current Streak: ${progress["current_streak"] ?: 0} days"
+
+        achievementsContainer.addView(summaryView)
+
+        AlertDialog.Builder(this)
+            .setTitle("🏆 Your Achievements")
+            .setView(dialogView)
+            .setPositiveButton("Close") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNeutralButton("Refresh") { dialog, _ ->
+                showAchievementsDialog() // Refresh data
+            }
+            .create()
+            .show()
     }
 
     private fun loadCurrentTheme() {
@@ -80,7 +196,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
             .setTitle("Delete All Data")
-            .setMessage("Are you sure you want to delete all your data? This includes:\n\n• All workout records\n• All meal logs\n• All fitness goals\n• All progress data\n\nThis action cannot be undone.")
+            .setMessage("Are you sure you want to delete all your data? This includes:\n\n• All workout records\n• All meal logs\n• All fitness goals\n• All progress data\n• All achievement badges\n\nThis action cannot be undone.")
             .setPositiveButton("Delete All") { dialog, which ->
                 deleteAllData()
             }
@@ -90,7 +206,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun deleteAllData() {
         try {
-            // Clear all data from DataRepository
+            // Clear all data from DataRepository (including achievements)
             DataRepository.clearAllData()
 
             // Clear all SharedPreferences
@@ -111,7 +227,8 @@ class SettingsActivity : AppCompatActivity() {
             "goals_data",
             "nutrition_data",
             "workout_data",
-            "user_preferences"
+            "user_preferences",
+            "achievements"
         )
 
         prefsToClear.forEach { prefName ->

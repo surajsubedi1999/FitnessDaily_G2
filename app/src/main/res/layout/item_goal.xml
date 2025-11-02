@@ -8,6 +8,19 @@
     android:layout_margin="8dp"
     android:elevation="2dp">
 
+    <!-- Completed Badge -->
+    <TextView
+        android:id="@+id/tvCompletedBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✓ COMPLETED"
+        android:textColor="#4CAF50"
+        android:textStyle="bold"
+
+        android:padding="4dp"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,5 +98,15 @@
         android:layout_height="8dp"
         android:layout_marginTop="8dp"
         android:progress="0" />
+
+    <!-- Mark Complete Button -->
+    <Button
+        android:id="@+id/btnComplete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mark Complete"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#2196F3"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>
