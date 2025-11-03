@@ -27,6 +27,22 @@ object DataRepository {
     // Context for showing Toast
     private var appContext: Context? = null
 
+    // Motivational quotes - simple list
+    private val motivationalQuotes = listOf(
+        "💪 The only bad workout is the one that didn't happen.",
+        "🔥 Don't wish for it, work for it.",
+        "🚀 You are one workout away from a good mood.",
+        "🌟 Success isn't about greatness. It's about consistency.",
+        "🏃‍♂️ Your body can stand almost anything. It's your mind you have to convince.",
+        "🎯 The secret of getting ahead is getting started.",
+        "❤️ Take care of your body. It's the only place you have to live.",
+        "🍎 Your health is an investment, not an expense.",
+        "📈 Small daily improvements are the key to staggering long-term results.",
+        "💥 Don't stop when you're tired. Stop when you're done.",
+        "🌈 What seems impossible today will one day become your warm-up.",
+        "⭐ The only person you should try to be better than is the person you were yesterday."
+    )
+
     init {
         initializeAchievements()
     }
@@ -36,11 +52,11 @@ object DataRepository {
         loadAchievementProgress()
     }
 
-    // Achievement methods - Remove R.drawable references for now
+    // Achievement methods
     private fun initializeAchievements() {
         achievements.addAll(
             listOf(
-                Achievement("ach_1", "First Steps", "Complete your first workout", AchievementType.WORKOUT_COUNT, 1, 0), // 0 as placeholder
+                Achievement("ach_1", "First Steps", "Complete your first workout", AchievementType.WORKOUT_COUNT, 1, 0),
                 Achievement("ach_2", "Regular Runner", "Complete 10 workouts", AchievementType.WORKOUT_COUNT, 10, 0),
                 Achievement("ach_3", "Fitness Fanatic", "Complete 50 workouts", AchievementType.WORKOUT_COUNT, 50, 0),
                 Achievement("ach_4", "Healthy Eater", "Log 20 meals", AchievementType.MEAL_COUNT, 20, 0),
@@ -303,6 +319,21 @@ object DataRepository {
             "goals_completed" to goalsCompleted,
             "current_streak" to currentStreak
         )
+    }
+
+    // SIMPLE QUOTE METHODS - NEW FEATURE
+    fun getDailyQuote(): String {
+        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+        val quoteIndex = Math.abs(today.hashCode()) % motivationalQuotes.size
+        return motivationalQuotes[quoteIndex]
+    }
+
+    fun getRandomQuote(): String {
+        return motivationalQuotes.random()
+    }
+
+    fun getAllQuotes(): List<String> {
+        return motivationalQuotes.toList()
     }
 
     // Clear all data

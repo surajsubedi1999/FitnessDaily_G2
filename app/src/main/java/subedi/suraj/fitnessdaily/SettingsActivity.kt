@@ -19,6 +19,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnBack: Button
     private lateinit var btnDeleteAllData: Button
     private lateinit var btnAchievements: Button
+    private lateinit var btnMotivationalQuote: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,7 @@ class SettingsActivity : AppCompatActivity() {
         btnBack = findViewById(R.id.btnBack)
         btnDeleteAllData = findViewById(R.id.btnDeleteAllData)
         btnAchievements = findViewById(R.id.btnAchievements)
+        btnMotivationalQuote = findViewById(R.id.btnMotivationalQuote)
     }
 
     private fun setupClickListeners() {
@@ -53,9 +55,26 @@ class SettingsActivity : AppCompatActivity() {
         btnAchievements.setOnClickListener {
             showAchievementsDialog()
         }
+
+        btnMotivationalQuote.setOnClickListener {
+            showRandomQuote()
+        }
     }
 
-    // UPDATED: Show achievements dialog with real data
+    private fun showRandomQuote() {
+        val quote = DataRepository.getRandomQuote()
+        AlertDialog.Builder(this)
+            .setTitle("💪 Your Motivation")
+            .setMessage(quote)
+            .setPositiveButton("Thanks!") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNeutralButton("Another one") { dialog, _ ->
+                showRandomQuote() // Show another quote
+            }
+            .show()
+    }
+
     private fun showAchievementsDialog() {
         val achievements = DataRepository.getAchievements()
         val earnedAchievements = DataRepository.getEarnedAchievements()
@@ -66,7 +85,7 @@ class SettingsActivity : AppCompatActivity() {
         val tvProgress = dialogView.findViewById<android.widget.TextView>(R.id.tvAchievementProgress)
 
         // Update progress text with real data
-        tvProgress.text = "🎯 Your Progress: ${earnedAchievements.size}/${achievements.size} achievements earned"
+        tvProgress.text = "Progress: ${earnedAchievements.size}/${achievements.size} achievements earned"
 
         // Clear existing views
         achievementsContainer.removeAllViews()
@@ -138,20 +157,6 @@ class SettingsActivity : AppCompatActivity() {
 
             achievementsContainer.addView(achievementView)
         }
-
-        // Add real statistics summary
-        val summaryView = layoutInflater.inflate(R.layout.item_achievement_summary, null)
-        val tvWorkouts = summaryView.findViewById<android.widget.TextView>(R.id.tvWorkoutsSummary)
-        val tvMeals = summaryView.findViewById<android.widget.TextView>(R.id.tvMealsSummary)
-        val tvGoals = summaryView.findViewById<android.widget.TextView>(R.id.tvGoalsSummary)
-        val tvStreak = summaryView.findViewById<android.widget.TextView>(R.id.tvStreakSummary)
-
-        tvWorkouts.text = "Total Workouts: ${progress["workout_count"] ?: 0}"
-        tvMeals.text = "Total Meals: ${progress["meal_count"] ?: 0}"
-        tvGoals.text = "Completed Goals: ${progress["goals_completed"] ?: 0}"
-        tvStreak.text = "Current Streak: ${progress["current_streak"] ?: 0} days"
-
-        achievementsContainer.addView(summaryView)
 
         AlertDialog.Builder(this)
             .setTitle("🏆 Your Achievements")

@@ -1,5 +1,6 @@
 package subedi.suraj.fitnessdaily
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -27,6 +28,9 @@ class MainActivity : AppCompatActivity() {
 
         initializeViews()
         setupNavigation()
+
+        // Show motivational quote on startup
+        showStartupQuote()
     }
 
     private fun applySavedTheme() {
@@ -69,5 +73,30 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()
+    }
+
+    private fun showStartupQuote() {
+        val sharedPreferences = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        val lastStartupTime = sharedPreferences.getLong("last_startup_quote", 0)
+        val currentTime = System.currentTimeMillis()
+        val threeHoursInMillis = 3 * 60 * 60 * 1000
+
+        // Show quote only once every 3 hours
+        if (currentTime - lastStartupTime > threeHoursInMillis) {
+            val quote = DataRepository.getRandomQuote()
+            showSimpleQuoteDialog(quote)
+            sharedPreferences.edit().putLong("last_startup_quote", currentTime).apply()
+        }
+    }
+
+    private fun showSimpleQuoteDialog(quote: String) {
+        AlertDialog.Builder(this)
+            .setTitle("💪 Daily Motivation")
+            .setMessage(quote)
+            .setPositiveButton("Got it!") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 }
