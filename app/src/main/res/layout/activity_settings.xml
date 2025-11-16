@@ -108,19 +108,6 @@
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
-    <!-- NEW: Achievements Button -->
-    <Button
-        android:id="@+id/btnAchievements"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🎯 View Achievements"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#FF9800"
-        android:layout_marginBottom="16dp"
-        android:padding="16dp" />
-
     <!-- Delete All Data Button -->
     <Button
         android:id="@+id/btnDeleteAllData"
@@ -133,7 +120,7 @@
         android:layout_marginTop="16dp"
         android:padding="16dp" />
 
-
+    <!-- Delete Warning Text -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -142,17 +129,5 @@
         android:textColor="?android:attr/textColorSecondary"
         android:gravity="center"
         android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnMotivationalQuote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="💬 Get Motivated"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#FF9800"
-        android:layout_marginBottom="16dp"
-        android:padding="16dp" />
 
 </LinearLayout>
