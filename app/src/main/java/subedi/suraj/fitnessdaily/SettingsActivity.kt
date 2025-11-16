@@ -3,15 +3,14 @@ package subedi.suraj.fitnessdaily
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import subedi.suraj.fitnessdaily.repository.DataRepository
+import java.util.*
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -19,6 +18,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private lateinit var btnBack: Button
     private lateinit var btnDeleteAllData: Button
+    private lateinit var btnShareProgress: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +34,7 @@ class SettingsActivity : AppCompatActivity() {
         btnSave = findViewById(R.id.btnSave)
         btnBack = findViewById(R.id.btnBack)
         btnDeleteAllData = findViewById(R.id.btnDeleteAllData)
+        btnShareProgress = findViewById(R.id.btnShareProgress)
     }
 
     private fun setupClickListeners() {
@@ -47,6 +48,108 @@ class SettingsActivity : AppCompatActivity() {
 
         btnDeleteAllData.setOnClickListener {
             showDeleteConfirmationDialog()
+        }
+
+        btnShareProgress.setOnClickListener {
+            shareProgress()
+        }
+    }
+
+    private fun shareProgress() {
+        try {
+            val shareMessage = createProgressShareMessage()
+
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, shareMessage)
+                type = "text/plain"
+            }
+
+            val shareChooser = Intent.createChooser(shareIntent, "Share Your Fitness Progress")
+            startActivity(shareChooser)
+
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error sharing progress", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun createProgressShareMessage(): String {
+        val workouts = DataRepository.getLast30DaysWorkouts()
+        val totalWorkouts = workouts.size
+        val totalCalories = workouts.sumOf { it.caloriesBurned }
+        val currentStreak = calculateCurrentStreak()
+        val favoriteWorkouts = DataRepository.getFavoriteWorkoutTemplates()
+
+        val message = StringBuilder()
+        message.append("🏋️ My Fitness Progress from FitnessDaily! 🏋️\n\n")
+
+        message.append("🔥 Current Streak: $currentStreak days\n")
+        message.append("💪 Recent Workouts (30 days): $totalWorkouts workouts\n")
+        message.append("🔥 Calories Burned: $totalCalories\n")
+
+        if (favoriteWorkouts.isNotEmpty()) {
+            message.append("⭐ Favorite Workouts:\n")
+            favoriteWorkouts.take(3).forEach { workout ->
+                message.append("• ${workout.name} (${workout.duration}min)\n")
+            }
+        }
+
+        val recentAchievement = getRecentAchievement(currentStreak, totalWorkouts)
+        if (recentAchievement.isNotEmpty()) {
+            message.append("\n🎯 $recentAchievement\n")
+        }
+
+        message.append("\nKeep pushing! Let's get fit together! 💥")
+
+        return message.toString()
+    }
+
+    private fun calculateCurrentStreak(): Int {
+        val workouts = DataRepository.getWorkouts().sortedByDescending { it.date }
+        if (workouts.isEmpty()) return 0
+
+        val calendar = Calendar.getInstance()
+        var streak = 0
+        var currentDate = calendar.time
+
+        val todayWorkout = workouts.firstOrNull {
+            isSameDay(it.date, currentDate)
+        }
+        if (todayWorkout != null) {
+            streak++
+        } else {
+            return 0
+        }
+
+        for (i in 1 until workouts.size) {
+            calendar.add(Calendar.DAY_OF_YEAR, -1)
+            val previousDate = calendar.time
+
+            val hasWorkoutOnDay = workouts.any { isSameDay(it.date, previousDate) }
+            if (hasWorkoutOnDay) {
+                streak++
+            } else {
+                break
+            }
+        }
+
+        return streak
+    }
+
+    private fun isSameDay(date1: Date, date2: Date): Boolean {
+        val cal1 = Calendar.getInstance().apply { time = date1 }
+        val cal2 = Calendar.getInstance().apply { time = date2 }
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun getRecentAchievement(streak: Int, totalWorkouts: Int): String {
+        return when {
+            streak >= 7 -> "🔥 7-Day Streak! Amazing consistency!"
+            streak >= 3 -> "🚀 3-Day Streak! Keep it up!"
+            totalWorkouts >= 10 -> "💪 10+ Workouts this month! Great progress!"
+            totalWorkouts >= 5 -> "⭐ 5 Workouts completed! Building momentum!"
+            else -> "🌟 Fitness journey started! Every step counts!"
         }
     }
 
@@ -72,8 +175,6 @@ class SettingsActivity : AppCompatActivity() {
 
         sharedPreferences.edit().putInt("theme_mode", selectedTheme).apply()
         AppCompatDelegate.setDefaultNightMode(selectedTheme)
-
-        // Restart the app to apply theme properly
         restartApp()
     }
 
@@ -90,21 +191,15 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun deleteAllData() {
         try {
-            // Clear all data from DataRepository
             DataRepository.clearAllData()
-
-            // Clear all SharedPreferences
             clearAllSharedPreferences()
-
             showSuccessMessage()
-
         } catch (e: Exception) {
             Toast.makeText(this, "Error deleting data: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun clearAllSharedPreferences() {
-        // List all SharedPreferences files used by the app
         val prefsToClear = listOf(
             "app_settings",
             "fitness_data",
