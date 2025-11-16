@@ -108,18 +108,26 @@
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
-    <!-- NEW: Achievements Button -->
+    <!-- Share Progress Button -->
     <Button
-        android:id="@+id/btnAchievements"
+        android:id="@+id/btnShareProgress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="🎯 View Achievements"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:text="Share Progress"
         android:textColor="@android:color/white"
-        android:backgroundTint="#FF9800"
-        android:layout_marginBottom="16dp"
+        android:backgroundTint="#FF6200EE"
+        android:layout_marginTop="16dp"
         android:padding="16dp" />
+
+    <!-- Share Progress Description -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share your workout streaks and progress with friends"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:gravity="center"
+        android:layout_marginTop="8dp" />
 
     <!-- Delete All Data Button -->
     <Button
@@ -133,7 +141,7 @@
         android:layout_marginTop="16dp"
         android:padding="16dp" />
 
-
+    <!-- Delete Warning Text -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -142,17 +150,4 @@
         android:textColor="?android:attr/textColorSecondary"
         android:gravity="center"
         android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnMotivationalQuote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="💬 Get Motivated"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#FF9800"
-        android:layout_marginBottom="16dp"
-        android:padding="16dp" />
-
 </LinearLayout>
