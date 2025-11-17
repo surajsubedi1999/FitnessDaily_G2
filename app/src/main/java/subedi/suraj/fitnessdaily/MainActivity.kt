@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import subedi.suraj.fitnessdaily.repository.DataRepository
+import subedi.suraj.fitnessdaily.utils.PreferencesManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,6 +19,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnSettings: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Check if tutorial should be shown FIRST
+        val preferencesManager = PreferencesManager(this)
+        if (preferencesManager.isFirstLaunch()) {
+            startActivity(Intent(this, TutorialActivity::class.java))
+            finish()
+            return
+        }
+
         // Apply theme before creating
         applySavedTheme()
         super.onCreate(savedInstanceState)
